@@ -1,0 +1,1738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gas Laws Virtual Laboratory</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/katex.min.css" crossorigin="anonymous">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/katex.min.js" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+  <style>
+    .needle-transition { transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+    .glassmorphism { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px); }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen font-sans flex flex-col">
+
+  <!-- Top Navigation Bar -->
+  <header class="bg-slate-800/90 border-b border-slate-700 sticky top-0 z-30 px-4 py-3">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-blue-600/30 border border-blue-500/50 flex items-center justify-center text-blue-400 font-bold text-xl shadow-inner">
+          ⚡
+        </div>
+        <div>
+          <h1 class="font-bold text-lg text-white tracking-wide">Gas Laws Virtual Physics Lab</h1>
+          <p class="text-xs text-slate-400">HKDSE & Senior Secondary Physics Investigation</p>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="flex rounded-lg bg-slate-900 p-1 border border-slate-700 text-xs sm:text-sm font-medium">
+        <button id="tab-boyle" onclick="switchLab('boyle')" class="px-3.5 py-1.5 rounded-md transition-all bg-blue-600 text-white shadow-sm">
+          Boyle's Law
+        </button>
+        <button id="tab-pressure" onclick="switchLab('pressure')" class="px-3.5 py-1.5 rounded-md transition-all text-slate-400 hover:text-white">
+          Pressure Law
+        </button>
+        <button id="tab-charles" onclick="switchLab('charles')" class="px-3.5 py-1.5 rounded-md transition-all text-slate-400 hover:text-white">
+          Charles's Law
+        </button>
+        <button id="tab-report" onclick="switchLab('report')" class="px-3.5 py-1.5 rounded-md transition-all text-amber-400 hover:text-amber-300 flex items-center gap-1">
+          <span>📝</span> DSE Physics Quiz
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-7xl w-full mx-auto p-4 flex-1 flex flex-col space-y-4">
+
+    <!-- Active Lab Banner / Formula -->
+    <div class="bg-gradient-to-r from-slate-800 via-slate-850 to-slate-800 border border-slate-700 rounded-xl p-4 flex flex-wrap items-center justify-between gap-4 shadow-lg">
+      <div id="law-header-info">
+        <!-- Injected via JS -->
+      </div>
+      <div id="law-status-badge" class="flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
+        <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+        Phase 1: Select Correct Apparatus
+      </div>
+    </div>
+
+    <!-- Apparatus Selection Phase -->
+    <section id="apparatus-section" class="bg-slate-800/80 border border-slate-700 rounded-xl p-5 shadow-md">
+      <div class="flex flex-wrap items-center justify-between pb-3 border-b border-slate-700 mb-4 gap-2">
+        <div>
+          <h2 class="text-base font-semibold text-white flex items-center gap-2">
+            <span class="text-blue-400">📦</span> Step 1: Equipment Selection Checklist
+            <!-- Teacher Quick Bypass Button -->
+            <button onclick="bypassApparatus()" title="Teacher Bypass: Skip directly to experiment" class="opacity-20 hover:opacity-80 transition text-xs px-1.5 py-0.5 rounded text-slate-400 hover:text-white bg-slate-800 border border-slate-700/50 cursor-pointer select-none">
+              ⏭️
+            </button>
+          </h2>
+          <p class="text-xs text-slate-400">Select only the necessary laboratory apparatus required to conduct this investigation accurately.</p>
+        </div>
+        <button onclick="verifyApparatus()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white rounded-lg font-medium text-xs sm:text-sm shadow-md transition flex items-center gap-1.5">
+          <span>✔️</span> Verify Setup & Start Lab
+        </button>
+      </div>
+
+      <div id="apparatus-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+        <!-- Rendered items -->
+      </div>
+
+      <div id="apparatus-feedback" class="mt-4 hidden p-3 rounded-lg text-xs sm:text-sm flex items-start gap-2">
+        <!-- Feedback messages -->
+      </div>
+    </section>
+
+    <!-- Interactive Experiment Phase (Hidden until apparatus correctly verified) -->
+    <section id="experiment-section" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-5 flex-1">
+
+      <!-- Left Panel: Apparatus Simulation & Visualizer (7 cols) -->
+      <div class="lg:col-span-7 flex flex-col space-y-4">
+        <div class="bg-slate-800/90 border border-slate-700 rounded-xl p-4 flex-1 flex flex-col shadow-md">
+          <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-700">
+            <div class="flex items-center gap-2">
+              <span class="text-emerald-400 text-sm">🧪</span>
+              <h3 class="text-sm font-semibold text-white">Apparatus Rig & Particle Chamber</h3>
+            </div>
+            <div class="text-xs text-slate-400 flex items-center gap-2">
+              <button id="btn-toggle-particles" onclick="toggleParticles()" class="px-2.5 py-1 rounded text-xs font-medium border border-slate-700 bg-slate-900 text-slate-400 hover:text-white transition flex items-center gap-1 shadow-sm">
+                <span>⚛️</span> <span id="toggle-particles-text">Show Particles</span>
+              </button>
+              <span id="gas-constant-badge" class="px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-blue-300 font-mono">Constant: Temp (T = 293 K)</span>
+            </div>
+          </div>
+
+          <!-- Canvas / SVG Animation Rig Container -->
+          <div class="relative w-full h-[280px] sm:h-[320px] bg-slate-950 rounded-lg border border-slate-800 overflow-hidden flex items-center justify-center p-2">
+            <canvas id="simCanvas" width="600" height="320" class="w-full h-full object-contain"></canvas>
+            
+            <!-- Floating Gauge Overlay -->
+            <div id="gauge-container" class="absolute top-3 right-3 bg-slate-900/90 border border-slate-700 rounded-lg p-2.5 shadow-xl flex flex-col items-center">
+              <div class="relative w-24 h-24 flex items-center justify-center">
+                <!-- Gauge Dial SVG -->
+                <svg viewBox="0 0 100 100" class="w-full h-full">
+                  <circle cx="50" cy="50" r="42" fill="none" stroke="#334155" stroke-width="6"/>
+                  <path d="M 20 80 A 42 42 0 1 1 80 80" fill="none" stroke="#0ea5e9" stroke-width="6" stroke-linecap="round"/>
+                  <!-- Tick marks -->
+                  <line x1="20" y1="80" x2="26" y2="74" stroke="#94a3b8" stroke-width="2"/>
+                  <line x1="50" y1="8" x2="50" y2="16" stroke="#94a3b8" stroke-width="2"/>
+                  <line x1="80" y1="80" x2="74" y2="74" stroke="#94a3b8" stroke-width="2"/>
+                </svg>
+                <!-- Needle -->
+                <div id="gauge-needle" class="absolute w-1 h-12 bg-red-500 rounded-full origin-bottom needle-transition shadow-sm" style="bottom: 50%; transform: rotate(-120deg);"></div>
+                <div class="absolute w-3.5 h-3.5 rounded-full bg-slate-200 border-2 border-slate-800"></div>
+              </div>
+              <span id="gauge-title" class="text-[10px] uppercase font-bold text-slate-400 mt-1">Bourdon Gauge</span>
+              <span id="gauge-value" class="text-xs font-mono font-bold text-sky-400">101.3 kPa</span>
+            </div>
+          </div>
+
+          <!-- Interactive Sliders and Controls -->
+          <div class="mt-4 space-y-3 bg-slate-900/80 p-3.5 rounded-lg border border-slate-700">
+            <div id="slider-control-group">
+              <!-- Dynamically populated based on active law -->
+            </div>
+
+            <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-800">
+              <div class="flex items-center gap-2">
+                <button onclick="recordDataPoint()" class="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-md text-xs font-medium shadow flex items-center gap-1.5 transition">
+                  <span>📌</span> Record Reading
+                </button>
+                <button onclick="clearCurrentData()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-md text-xs font-medium transition">
+                  Clear Table
+                </button>
+              </div>
+              <div class="text-xs text-slate-400 flex items-center gap-2">
+                <span>Total Points:</span>
+                <span id="points-counter" class="font-mono font-bold text-white px-2 py-0.5 rounded bg-slate-800 border border-slate-700">0</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Panel: Dynamic Graph & Table (5 cols) -->
+      <div class="lg:col-span-5 flex flex-col space-y-4">
+        
+        <!-- Graph Area -->
+        <div class="bg-slate-800/90 border border-slate-700 rounded-xl p-4 flex flex-col shadow-md">
+          <div class="flex flex-wrap items-center justify-between gap-1.5 mb-2">
+            <h3 class="text-sm font-semibold text-white flex items-center gap-1.5">
+              <span>📈</span> Dynamic Graph Plot
+            </h3>
+            <div class="flex items-center gap-1.5">
+              <button id="btn-toggle-line" onclick="toggleFitLine()" class="px-2 py-0.5 rounded text-xs font-medium border border-slate-700 bg-slate-900 text-slate-400 hover:text-white transition flex items-center gap-1 shadow-sm">
+                <span>👁️</span> <span id="toggle-line-text">Show Line</span>
+              </button>
+              <!-- Graph Mode Switch (e.g. P vs V vs P vs 1/V for Boyle) -->
+              <div id="graph-options-container" class="flex gap-1 text-xs">
+                <!-- Populated by JS -->
+              </div>
+            </div>
+          </div>
+
+          <div class="relative w-full h-[220px] bg-slate-950 rounded-lg border border-slate-800 p-2 flex items-center justify-center">
+            <canvas id="graphCanvas" width="460" height="220" class="w-full h-full"></canvas>
+          </div>
+
+          <p id="graph-caption" class="text-[11px] text-slate-400 mt-2 text-center">
+            Adjust the slider and click "Record Reading" to plot experimental data points.
+          </p>
+        </div>
+
+        <!-- Data Table Area -->
+        <div class="bg-slate-800/90 border border-slate-700 rounded-xl p-4 flex-1 flex flex-col shadow-md">
+          <h3 class="text-sm font-semibold text-white mb-2 flex items-center justify-between">
+            <span class="flex items-center gap-1.5"><span>📋</span> Recorded Data</span>
+            <span class="text-[11px] text-slate-400 font-normal">Click a row to inspect</span>
+          </h3>
+          <div class="overflow-y-auto max-h-[160px] border border-slate-700/60 rounded-md">
+            <table class="w-full text-left text-xs border-collapse">
+              <thead id="data-table-head" class="bg-slate-900 sticky top-0 text-slate-300 font-medium">
+                <!-- Dynamically populated -->
+              </thead>
+              <tbody id="data-table-body" class="divide-y divide-slate-800 font-mono text-slate-200">
+                <tr><td colspan="4" class="p-3 text-center text-slate-500 italic">No data points recorded yet.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Lab Submission & DSE Quiz Section -->
+    <section id="submission-section" class="hidden bg-slate-800/90 border border-slate-700 rounded-xl p-6 shadow-xl space-y-6">
+      <div class="border-b border-slate-700 pb-3 flex flex-wrap justify-between items-center gap-2">
+        <div>
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <span>📝</span> HKDSE Gas Laws Assessment (6 MCQs)
+          </h2>
+          <p class="text-xs text-slate-400">Two HKDSE-style conceptual and experimental questions for each gas law. Complete your answers and check your score.</p>
+        </div>
+        <div id="quiz-score-badge" class="hidden text-xs font-bold px-3 py-1.5 rounded-full bg-blue-600/30 text-blue-300 border border-blue-500/40">
+          Score: <span id="score-val">0</span> / 6
+        </div>
+      </div>
+
+      <!-- Student Name and Class details -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Student Name</label>
+          <input type="text" id="student-name" placeholder="e.g. Alex Wong" class="w-full bg-slate-900 border border-slate-700 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Class & Class Number</label>
+          <input type="text" id="student-class" placeholder="e.g. 5D (18)" class="w-full bg-slate-900 border border-slate-700 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Date</label>
+          <input type="text" id="student-date" readonly class="w-full bg-slate-950 border border-slate-800 rounded-md px-3 py-2 text-sm text-slate-400 font-mono">
+        </div>
+      </div>
+
+      <!-- 6 DSE-like Multiple Choice Questions -->
+      <div class="space-y-5 pt-2" id="quiz-questions-list">
+        <!-- Rendered via JS -->
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="pt-4 border-t border-slate-700 flex flex-wrap items-center justify-between gap-3">
+        <div id="submit-status-msg" class="text-xs font-medium"></div>
+        <div class="flex items-center gap-3">
+          <button id="btn-check-quiz" onclick="gradeQuiz()" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm rounded-lg shadow-md active:scale-95 transition flex items-center gap-2">
+            <span>✔️</span> Check Answers & Grade
+          </button>
+          <button id="btn-submit" onclick="submitToTeacher()" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm rounded-lg shadow-lg active:scale-95 transition flex items-center gap-2">
+            <span>🚀</span> Submit Results to Teacher
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="text-center py-3 text-xs text-slate-500 border-t border-slate-800">
+    SKH Tang Shiu Kin Secondary School • Physics Department • Gas Laws Simulation Laboratory
+  </footer>
+
+  <script>
+    // --- Data Models & State ---
+    const APP_STATE = {
+      currentLab: 'boyle', // 'boyle' | 'charles' | 'pressure' | 'report'
+      apparatusVerified: {
+        boyle: false,
+        charles: false,
+        pressure: false
+      },
+      dataPoints: {
+        boyle: [],
+        charles: [],
+        pressure: []
+      },
+      simValues: {
+        boyle: { volume: 30 }, // cm^3 (range 15 - 60)
+        charles: { tempC: 25 }, // °C (range 0 - 100)
+        pressure: { tempC: 25 } // °C (range 0 - 100)
+      },
+      graphMode: {
+        boyle: 'p-v', // 'p-v' or 'p-inv_v'
+        charles: 'v-t', // 'v-t' (Celsius) or 'v-t_kelvin'
+        pressure: 'p-t' // 'p-t' (Celsius) or 'p-t_kelvin'
+      },
+      showFitLine: false,
+      showParticles: false
+    };
+
+    // Constant parameters
+    const N_MOLES = 0.0015;
+    const R_GAS = 8.314;
+    const ATM_KPA = 101.3;
+
+    // Apparatus Catalog (including realistic distractors/fakes)
+    const APPARATUS_ITEMS = [
+      { id: 'syringe', name: 'Airtight Gas Syringe (with scale)', icon: '💉' },
+      { id: 'bourdon', name: 'Bourdon Pressure Gauge', icon: '⏱️' },
+      { id: 'capillary', name: 'Capillary Tube with Mercury/Acid Index', icon: '📏' },
+      { id: 'flask', name: 'Rigid Sealed Round-Bottom Flask', icon: '🧪' },
+      { id: 'waterbath', name: 'Beaker with Water Bath & Stirrer', icon: '🥣' },
+      { id: 'heater', name: 'Electric Hot Plate / Bunsen Burner', icon: '🔥' },
+      { id: 'thermometer', name: 'Precision Digital Thermometer', icon: '🌡️' },
+      { id: 'ruler', name: 'Millimeter Scale / Ruler', icon: '📐' },
+      { id: 'balloon', name: 'Elastic Rubber Balloon', icon: '🎈', distractor: true },
+      { id: 'stopwatch', name: 'Digital Electronic Stopwatch', icon: '⏱️', distractor: true },
+      { id: 'vacuum_pump', name: 'Electric Vacuum Pump', icon: '⚙️', distractor: true },
+      { id: 'tuning_fork', name: 'Acoustic Resonance Tuning Fork', icon: '🍴', distractor: true },
+      { id: 'voltmeter', name: 'DC Digital Voltmeter', icon: '⚡', distractor: true },
+      { id: 'balance', name: 'Spring Force Meter / Balance', icon: '⚖️', distractor: true }
+    ];
+
+    // Correct items needed per experiment
+    const REQUIRED_APPARATUS = {
+      boyle: ['syringe', 'bourdon'],
+      charles: ['capillary', 'waterbath', 'heater', 'thermometer', 'ruler'],
+      pressure: ['flask', 'bourdon', 'waterbath', 'heater', 'thermometer']
+    };
+
+    let selectedApparatus = new Set();
+    let animFrameId = null;
+
+    // Dedicated particle systems for each experiment
+    const particlesBoyle = [];
+    for (let i = 0; i < 35; i++) {
+      particlesBoyle.push({
+        x: 90 + Math.random() * 120,
+        y: 100 + Math.random() * 80,
+        vx: (Math.random() - 0.5) * 3,
+        vy: (Math.random() - 0.5) * 3,
+        size: 3
+      });
+    }
+
+    const particlesCharles = [];
+    for (let i = 0; i < 20; i++) {
+      particlesCharles.push({
+        x: 222 + Math.random() * 14,
+        y: 160 + Math.random() * 70,
+        vx: (Math.random() - 0.5) * 2,
+        vy: (Math.random() - 0.5) * 3,
+        size: 2.5
+      });
+    }
+
+    const particlesPressure = [];
+    for (let i = 0; i < 40; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const r = Math.random() * 42;
+      particlesPressure.push({
+        x: 230 + Math.cos(angle) * r,
+        y: 195 + Math.sin(angle) * r,
+        vx: (Math.random() - 0.5) * 3,
+        vy: (Math.random() - 0.5) * 3,
+        size: 3
+      });
+    }
+
+    function bypassApparatus() {
+      const lab = APP_STATE.currentLab;
+      APP_STATE.apparatusVerified[lab] = true;
+      document.getElementById('apparatus-section').classList.add('hidden');
+      document.getElementById('experiment-section').classList.remove('hidden');
+      updateStatusBadge(true);
+      initExperimentUI();
+    }
+
+    // --- Switch Experiment Tab ---
+    function switchLab(labKey) {
+      APP_STATE.currentLab = labKey;
+
+      // Update Nav styles
+      ['boyle', 'charles', 'pressure', 'report'].forEach(key => {
+        const btn = document.getElementById(`tab-${key}`);
+        if (!btn) return;
+        if (key === labKey) {
+          btn.className = "px-3.5 py-1.5 rounded-md transition-all bg-blue-600 text-white shadow-sm font-semibold";
+        } else {
+          btn.className = "px-3.5 py-1.5 rounded-md transition-all text-slate-400 hover:text-white";
+        }
+      });
+
+      if (labKey === 'report') {
+        document.getElementById('apparatus-section').classList.add('hidden');
+        document.getElementById('experiment-section').classList.add('hidden');
+        document.getElementById('submission-section').classList.remove('hidden');
+        updateCompletionPills();
+        renderMath();
+        return;
+      }
+
+      document.getElementById('submission-section').classList.add('hidden');
+      renderLabHeader();
+      renderApparatusSelection();
+
+      // Check if unlocked
+      if (APP_STATE.apparatusVerified[labKey]) {
+        document.getElementById('apparatus-section').classList.add('hidden');
+        document.getElementById('experiment-section').classList.remove('hidden');
+        updateStatusBadge(true);
+        initExperimentUI();
+      } else {
+        document.getElementById('apparatus-section').classList.remove('hidden');
+        document.getElementById('experiment-section').classList.add('hidden');
+        updateStatusBadge(false);
+      }
+      renderMath();
+    }
+
+    function updateStatusBadge(isUnlocked) {
+      const badge = document.getElementById('law-status-badge');
+      if (isUnlocked) {
+        badge.className = "flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30";
+        badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400"></span> Phase 2: Live Experiment Active`;
+      } else {
+        badge.className = "flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30";
+        badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span> Phase 1: Select Correct Apparatus`;
+      }
+    }
+
+    // --- Render Lab Header Information ---
+    function renderLabHeader() {
+      const info = document.getElementById('law-header-info');
+      if (APP_STATE.currentLab === 'boyle') {
+        info.innerHTML = `
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <span>Boyle's Law (Pressure-Volume Relationship)</span>
+          </h2>
+          <p class="text-xs text-slate-300 mt-1">
+            "For a fixed mass of gas at constant temperature, pressure is inversely proportional to volume:"
+            <span class="text-sky-300 font-mono ml-2">$P \\propto \\frac{1}{V} \\implies P_1 V_1 = P_2 V_2$</span>
+          </p>
+        `;
+      } else if (APP_STATE.currentLab === 'charles') {
+        info.innerHTML = `
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <span>Charles's Law (Volume-Temperature Relationship)</span>
+          </h2>
+          <p class="text-xs text-slate-300 mt-1">
+            "For a fixed mass of gas at constant pressure, volume is directly proportional to absolute temperature:"
+            <span class="text-emerald-300 font-mono ml-2">$V \\propto T \\implies \\frac{V_1}{T_1} = \\frac{V_2}{T_2}$</span>
+          </p>
+        `;
+      } else if (APP_STATE.currentLab === 'pressure') {
+        info.innerHTML = `
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <span>Pressure Law / Gay-Lussac's Law (Pressure-Temperature)</span>
+          </h2>
+          <p class="text-xs text-slate-300 mt-1">
+            "For a fixed mass of gas at constant volume, pressure is directly proportional to absolute temperature:"
+            <span class="text-amber-300 font-mono ml-2">$P \\propto T \\implies \\frac{P_1}{T_1} = \\frac{P_2}{T_2}$</span>
+          </p>
+        `;
+      }
+    }
+
+    // --- Apparatus Selection UI ---
+    function renderApparatusSelection() {
+      const grid = document.getElementById('apparatus-grid');
+      const feedback = document.getElementById('apparatus-feedback');
+      feedback.classList.add('hidden');
+      selectedApparatus.clear();
+
+      grid.innerHTML = APPARATUS_ITEMS.map(item => `
+        <div id="card-${item.id}" onclick="toggleApparatus('${item.id}')" class="bg-slate-900/90 border border-slate-700/80 rounded-xl p-3 cursor-pointer select-none transition-all hover:border-slate-500 hover:scale-[1.02] flex flex-col items-center text-center space-y-2">
+          <span class="text-3xl">${item.icon}</span>
+          <span class="text-xs text-slate-200 font-medium leading-snug">${item.name}</span>
+          <span id="check-${item.id}" class="text-[10px] px-2 py-0.5 rounded-full border border-slate-700 text-slate-400">Click to select</span>
+        </div>
+      `).join('');
+    }
+
+    function toggleApparatus(id) {
+      const card = document.getElementById(`card-${id}`);
+      const check = document.getElementById(`check-${id}`);
+      if (selectedApparatus.has(id)) {
+        selectedApparatus.delete(id);
+        card.classList.remove('border-blue-500', 'bg-blue-950/40', 'ring-2', 'ring-blue-500/50');
+        check.className = "text-[10px] px-2 py-0.5 rounded-full border border-slate-700 text-slate-400";
+        check.textContent = "Click to select";
+      } else {
+        selectedApparatus.add(id);
+        card.classList.add('border-blue-500', 'bg-blue-950/40', 'ring-2', 'ring-blue-500/50');
+        check.className = "text-[10px] px-2 py-0.5 rounded-full bg-blue-500 text-white font-semibold";
+        check.textContent = "Selected ✓";
+      }
+    }
+
+    function verifyApparatus() {
+      const lab = APP_STATE.currentLab;
+      const required = REQUIRED_APPARATUS[lab];
+      const selected = Array.from(selectedApparatus);
+
+      const missing = required.filter(id => !selected.includes(id));
+      const extra = selected.filter(id => !required.includes(id));
+
+      const feedback = document.getElementById('apparatus-feedback');
+      feedback.classList.remove('hidden');
+
+      if (missing.length === 0 && extra.length === 0) {
+        feedback.className = "mt-4 p-3.5 rounded-lg text-xs sm:text-sm bg-emerald-900/50 border border-emerald-500 text-emerald-200 flex items-center gap-2";
+        feedback.innerHTML = `<span>🎉</span> <strong>Correct Apparatus Assembled!</strong> Unlocking simulation controls now...`;
+        
+        APP_STATE.apparatusVerified[lab] = true;
+        setTimeout(() => {
+          document.getElementById('apparatus-section').classList.add('hidden');
+          document.getElementById('experiment-section').classList.remove('hidden');
+          updateStatusBadge(true);
+          initExperimentUI();
+        }, 800);
+      } else {
+        feedback.className = "mt-4 p-3.5 rounded-lg text-xs sm:text-sm bg-rose-900/50 border border-rose-500 text-rose-200 flex flex-col gap-1";
+        let hints = [];
+        if (missing.length > 0) {
+          const names = missing.map(id => APPARATUS_ITEMS.find(it => it.id === id).name).join(', ');
+          hints.push(`Missing essential equipment: <strong>${names}</strong>.`);
+        }
+        if (extra.length > 0) {
+          const names = extra.map(id => APPARATUS_ITEMS.find(it => it.id === id).name).join(', ');
+          hints.push(`Unnecessary or redundant items chosen: <strong>${names}</strong>.`);
+        }
+        feedback.innerHTML = `
+          <div class="flex items-center gap-2 font-bold text-rose-300">
+            <span>⚠️</span> Apparatus setup is incomplete or contains non-essential items:
+          </div>
+          <div class="text-xs mt-1 pl-6 space-y-1">${hints.map(h => `<p>• ${h}</p>`).join('')}</div>
+        `;
+      }
+    }
+
+    // --- Experiment Interactive UI ---
+    function initExperimentUI() {
+      const lab = APP_STATE.currentLab;
+      const sliderGroup = document.getElementById('slider-control-group');
+      const constantBadge = document.getElementById('gas-constant-badge');
+      const graphOptions = document.getElementById('graph-options-container');
+
+      if (lab === 'boyle') {
+        constantBadge.textContent = "Constant: Temperature T = 293 K";
+        sliderGroup.innerHTML = `
+          <div class="flex items-center justify-between text-xs mb-1">
+            <span class="font-semibold text-slate-300">Gas Volume (V) Control:</span>
+            <span class="font-mono font-bold text-sky-400 text-sm" id="slider-val-display">${APP_STATE.simValues.boyle.volume} cm³</span>
+          </div>
+          <input type="range" min="15" max="60" step="1" value="${APP_STATE.simValues.boyle.volume}" id="main-slider" oninput="onSliderChange(this.value)" class="w-full accent-blue-500 cursor-pointer">
+          <div class="flex justify-between text-[10px] text-slate-500 font-mono mt-1">
+            <span>15 cm³ (Compressed)</span>
+            <span>60 cm³ (Expanded)</span>
+          </div>
+        `;
+        graphOptions.innerHTML = `
+          <button onclick="setGraphMode('p-v')" id="btn-gm-1" class="px-2 py-0.5 rounded ${APP_STATE.graphMode.boyle === 'p-v' ? 'bg-blue-600 text-white' : 'bg-slate-900 text-slate-400'}">P vs V</button>
+          <button onclick="setGraphMode('p-inv_v')" id="btn-gm-2" class="px-2 py-0.5 rounded ${APP_STATE.graphMode.boyle === 'p-inv_v' ? 'bg-blue-600 text-white' : 'bg-slate-900 text-slate-400'}">P vs 1/V</button>
+        `;
+      } else if (lab === 'charles') {
+        constantBadge.textContent = "Constant: Pressure P = 101.3 kPa";
+        sliderGroup.innerHTML = `
+          <div class="flex items-center justify-between text-xs mb-1">
+            <span class="font-semibold text-slate-300">Water Bath Temperature (θ) Control:</span>
+            <span class="font-mono font-bold text-emerald-400 text-sm" id="slider-val-display">${APP_STATE.simValues.charles.tempC} °C (${APP_STATE.simValues.charles.tempC + 273} K)</span>
+          </div>
+          <input type="range" min="0" max="100" step="2" value="${APP_STATE.simValues.charles.tempC}" id="main-slider" oninput="onSliderChange(this.value)" class="w-full accent-emerald-500 cursor-pointer">
+          <div class="flex justify-between text-[10px] text-slate-500 font-mono mt-1">
+            <span>0 °C (Ice-water mix)</span>
+            <span>100 °C (Boiling)</span>
+          </div>
+        `;
+        graphOptions.innerHTML = `
+          <button onclick="setGraphMode('v-t')" id="btn-gm-1" class="px-2.5 py-1 rounded font-medium ${APP_STATE.graphMode.charles === 'v-t' ? 'bg-blue-600 text-white' : 'bg-slate-900 text-slate-400'}">V vs θ (°C)</button>
+          <button onclick="setGraphMode('v-t_kelvin')" id="btn-gm-2" class="px-2.5 py-1 rounded font-medium ${APP_STATE.graphMode.charles === 'v-t_kelvin' ? 'bg-blue-600 text-white' : 'bg-slate-900 text-slate-400'}">V vs T (K)</button>
+        `;
+      } else if (lab === 'pressure') {
+        constantBadge.textContent = "Constant: Volume V = 250 cm³ (Rigid Flask)";
+        sliderGroup.innerHTML = `
+          <div class="flex items-center justify-between text-xs mb-1">
+            <span class="font-semibold text-slate-300">Water Bath Temperature (θ) Control:</span>
+            <span class="font-mono font-bold text-amber-400 text-sm" id="slider-val-display">${APP_STATE.simValues.pressure.tempC} °C (${APP_STATE.simValues.pressure.tempC + 273} K)</span>
+          </div>
+          <input type="range" min="0" max="100" step="2" value="${APP_STATE.simValues.pressure.tempC}" id="main-slider" oninput="onSliderChange(this.value)" class="w-full accent-amber-500 cursor-pointer">
+          <div class="flex justify-between text-[10px] text-slate-500 font-mono mt-1">
+            <span>0 °C (Ice Bath)</span>
+            <span>100 °C (Boiling)</span>
+          </div>
+        `;
+        graphOptions.innerHTML = `
+          <button onclick="setGraphMode('p-t')" id="btn-gm-1" class="px-2.5 py-1 rounded font-medium ${APP_STATE.graphMode.pressure === 'p-t' ? 'bg-blue-600 text-white' : 'bg-slate-900 text-slate-400'}">P vs θ (°C)</button>
+          <button onclick="setGraphMode('p-t_kelvin')" id="btn-gm-2" class="px-2.5 py-1 rounded font-medium ${APP_STATE.graphMode.pressure === 'p-t_kelvin' ? 'bg-blue-600 text-white' : 'bg-slate-900 text-slate-400'}">P vs T (K)</button>
+        `;
+      }
+
+      updateReadoutsAndGauge();
+      renderTable();
+      renderGraph();
+      startSimLoop();
+    }
+
+    function onSliderChange(val) {
+      val = parseFloat(val);
+      const lab = APP_STATE.currentLab;
+      const display = document.getElementById('slider-val-display');
+
+      if (lab === 'boyle') {
+        APP_STATE.simValues.boyle.volume = val;
+        display.textContent = `${val} cm³`;
+      } else if (lab === 'charles') {
+        APP_STATE.simValues.charles.tempC = val;
+        display.textContent = `${val} °C (${val + 273} K)`;
+      } else if (lab === 'pressure') {
+        APP_STATE.simValues.pressure.tempC = val;
+        display.textContent = `${val} °C (${val + 273} K)`;
+      }
+      updateReadoutsAndGauge();
+    }
+
+    function setGraphMode(mode) {
+      const lab = APP_STATE.currentLab;
+      APP_STATE.graphMode[lab] = mode;
+      initExperimentUI();
+    }
+
+    function toggleFitLine() {
+      APP_STATE.showFitLine = !APP_STATE.showFitLine;
+      const btnText = document.getElementById('toggle-line-text');
+      const btn = document.getElementById('btn-toggle-line');
+      if (btnText && btn) {
+        if (APP_STATE.showFitLine) {
+          btnText.textContent = "Hide Line";
+          btn.className = "px-2 py-0.5 rounded text-xs font-medium border border-blue-500/60 bg-blue-950/60 text-blue-300 hover:text-white transition flex items-center gap-1 shadow-sm";
+        } else {
+          btnText.textContent = "Show Line";
+          btn.className = "px-2 py-0.5 rounded text-xs font-medium border border-slate-700 bg-slate-900 text-slate-400 hover:text-white transition flex items-center gap-1 shadow-sm";
+        }
+      }
+      renderGraph();
+    }
+
+    function toggleParticles() {
+      APP_STATE.showParticles = !APP_STATE.showParticles;
+      const btnText = document.getElementById('toggle-particles-text');
+      const btn = document.getElementById('btn-toggle-particles');
+      if (btnText && btn) {
+        if (APP_STATE.showParticles) {
+          btnText.textContent = "Hide Particles";
+          btn.className = "px-2.5 py-1 rounded text-xs font-medium border border-blue-500/60 bg-blue-950/60 text-blue-300 hover:text-white transition flex items-center gap-1 shadow-sm";
+        } else {
+          btnText.textContent = "Show Particles";
+          btn.className = "px-2.5 py-1 rounded text-xs font-medium border border-slate-700 bg-slate-900 text-slate-400 hover:text-white transition flex items-center gap-1 shadow-sm";
+        }
+      }
+    }
+
+    // --- Calculations & Needle Updates ---
+    function computeCurrentState() {
+      const lab = APP_STATE.currentLab;
+      if (lab === 'boyle') {
+        const V = APP_STATE.simValues.boyle.volume; // cm³
+        // P * V = const = 101.3 * 30 = 3039 kPa·cm³
+        const P = (101.3 * 30) / V; // kPa
+        return { V, P, T_K: 293, T_C: 20 };
+      } else if (lab === 'charles') {
+        const T_C = APP_STATE.simValues.charles.tempC;
+        const T_K = T_C + 273.15;
+        // V / T = const. Base: at 20°C (293.15 K), V = 30 cm³ (length = 30 mm)
+        const V = 30 * (T_K / 293.15);
+        return { V, P: 101.3, T_K, T_C };
+      } else {
+        const T_C = APP_STATE.simValues.pressure.tempC;
+        const T_K = T_C + 273.15;
+        // P / T = const. Base: at 20°C (293.15 K), P = 101.3 kPa
+        const P = 101.3 * (T_K / 293.15);
+        return { V: 250, P, T_K, T_C };
+      }
+    }
+
+    function updateReadoutsAndGauge() {
+      const { V, P, T_C, T_K } = computeCurrentState();
+      const needle = document.getElementById('gauge-needle');
+      const gaugeVal = document.getElementById('gauge-value');
+      const gaugeTitle = document.getElementById('gauge-title');
+
+      if (APP_STATE.currentLab === 'boyle') {
+        gaugeTitle.textContent = "Bourdon Gauge (P)";
+        gaugeVal.textContent = `${P.toFixed(1)} kPa`;
+        // map P from 50 to 220 kPa to angle (-120deg to 120deg)
+        const angle = -120 + ((P - 50) / (220 - 50)) * 240;
+        needle.style.transform = `rotate(${Math.min(120, Math.max(-120, angle))}deg)`;
+      } else if (APP_STATE.currentLab === 'charles') {
+        gaugeTitle.textContent = "Length Scale (V)";
+        gaugeVal.textContent = `${V.toFixed(1)} cm³`;
+        // map V from 25 to 40 cm³
+        const angle = -120 + ((V - 25) / (40 - 25)) * 240;
+        needle.style.transform = `rotate(${Math.min(120, Math.max(-120, angle))}deg)`;
+      } else {
+        gaugeTitle.textContent = "Pressure Gauge (P)";
+        gaugeVal.textContent = `${P.toFixed(1)} kPa`;
+        const angle = -120 + ((P - 80) / (150 - 80)) * 240;
+        needle.style.transform = `rotate(${Math.min(120, Math.max(-120, angle))}deg)`;
+      }
+    }
+
+    // --- Recording Data Points ---
+    function recordDataPoint() {
+      const state = computeCurrentState();
+      const lab = APP_STATE.currentLab;
+
+      // Add a slight realistic measurement fluctuation (±0.3%)
+      const noiseP = (Math.random() - 0.5) * 0.4;
+      const noiseV = (Math.random() - 0.5) * 0.2;
+
+      const record = {
+        id: Date.now(),
+        V: +(state.V + noiseV).toFixed(1),
+        P: +(state.P + noiseP).toFixed(1),
+        T_C: state.T_C,
+        T_K: +state.T_K.toFixed(1),
+        inv_V: +(1 / (state.V + noiseV)).toFixed(4)
+      };
+
+      APP_STATE.dataPoints[lab].push(record);
+      APP_STATE.dataPoints[lab].sort((a, b) => (lab === 'boyle' ? a.V - b.V : a.T_C - b.T_C));
+
+      renderTable();
+      renderGraph();
+      document.getElementById('points-counter').textContent = APP_STATE.dataPoints[lab].length;
+    }
+
+    function clearCurrentData() {
+      APP_STATE.dataPoints[APP_STATE.currentLab] = [];
+      renderTable();
+      renderGraph();
+      document.getElementById('points-counter').textContent = '0';
+    }
+
+    // --- Render Data Table ---
+    function renderTable() {
+      const lab = APP_STATE.currentLab;
+      const head = document.getElementById('data-table-head');
+      const body = document.getElementById('data-table-body');
+      const data = APP_STATE.dataPoints[lab];
+
+      if (lab === 'boyle') {
+        head.innerHTML = `
+          <tr>
+            <th class="p-2">#</th>
+            <th class="p-2">V (cm³)</th>
+            <th class="p-2">P (kPa)</th>
+            <th class="p-2">1/V (cm⁻³)</th>
+            <th class="p-2">P × V</th>
+          </tr>
+        `;
+        if (data.length === 0) {
+          body.innerHTML = `<tr><td colspan="5" class="p-3 text-center text-slate-500 italic">No points yet. Adjust volume & record readings!</td></tr>`;
+          return;
+        }
+        body.innerHTML = data.map((d, i) => `
+          <tr class="hover:bg-slate-800/60">
+            <td class="p-2 text-slate-400">${i + 1}</td>
+            <td class="p-2 text-sky-400 font-semibold">${d.V}</td>
+            <td class="p-2 text-emerald-400 font-semibold">${d.P}</td>
+            <td class="p-2 text-slate-300">${d.inv_V}</td>
+            <td class="p-2 text-amber-300">${(d.P * d.V).toFixed(0)}</td>
+          </tr>
+        `).join('');
+      } else if (lab === 'charles') {
+        head.innerHTML = `
+          <tr>
+            <th class="p-2">#</th>
+            <th class="p-2">θ (°C)</th>
+            <th class="p-2">T (K)</th>
+            <th class="p-2">V (cm³)</th>
+            <th class="p-2">V / T (cm³/K)</th>
+          </tr>
+        `;
+        if (data.length === 0) {
+          body.innerHTML = `<tr><td colspan="5" class="p-3 text-center text-slate-500 italic">No points yet. Adjust temperature & record readings!</td></tr>`;
+          return;
+        }
+        body.innerHTML = data.map((d, i) => `
+          <tr class="hover:bg-slate-800/60">
+            <td class="p-2 text-slate-400">${i + 1}</td>
+            <td class="p-2 text-rose-400 font-semibold">${d.T_C}</td>
+            <td class="p-2 text-orange-400 font-semibold">${d.T_K}</td>
+            <td class="p-2 text-emerald-400 font-semibold">${d.V}</td>
+            <td class="p-2 text-amber-300">${(d.V / d.T_K).toFixed(4)}</td>
+          </tr>
+        `).join('');
+      } else {
+        head.innerHTML = `
+          <tr>
+            <th class="p-2">#</th>
+            <th class="p-2">θ (°C)</th>
+            <th class="p-2">T (K)</th>
+            <th class="p-2">P (kPa)</th>
+            <th class="p-2">P / T (kPa/K)</th>
+          </tr>
+        `;
+        if (data.length === 0) {
+          body.innerHTML = `<tr><td colspan="5" class="p-3 text-center text-slate-500 italic">No points yet. Adjust temperature & record readings!</td></tr>`;
+          return;
+        }
+        body.innerHTML = data.map((d, i) => `
+          <tr class="hover:bg-slate-800/60">
+            <td class="p-2 text-slate-400">${i + 1}</td>
+            <td class="p-2 text-rose-400 font-semibold">${d.T_C}</td>
+            <td class="p-2 text-orange-400 font-semibold">${d.T_K}</td>
+            <td class="p-2 text-sky-400 font-semibold">${d.P}</td>
+            <td class="p-2 text-amber-300">${(d.P / d.T_K).toFixed(4)}</td>
+          </tr>
+        `).join('');
+      }
+    }
+
+    // --- Dynamic Graph Plotting ---
+    function renderGraph() {
+      const canvas = document.getElementById('graphCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width;
+      const h = canvas.height;
+      const lab = APP_STATE.currentLab;
+      const mode = APP_STATE.graphMode[lab];
+      const data = APP_STATE.dataPoints[lab];
+
+      ctx.clearRect(0, 0, w, h);
+
+      // Margin
+      const padL = 55, padR = 25, padT = 20, padB = 40;
+      const plotW = w - padL - padR;
+      const plotH = h - padT - padB;
+
+      // Draw grid
+      ctx.strokeStyle = '#1e293b';
+      ctx.lineWidth = 1;
+      for (let x = padL; x <= w - padR; x += plotW / 5) {
+        ctx.beginPath();
+        ctx.moveTo(x, padT);
+        ctx.lineTo(x, h - padB);
+        ctx.stroke();
+      }
+      for (let y = padT; y <= h - padB; y += plotH / 4) {
+        ctx.beginPath();
+        ctx.moveTo(padL, y);
+        ctx.lineTo(w - padR, y);
+        ctx.stroke();
+      }
+
+      // Axes
+      ctx.strokeStyle = '#64748b';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(padL, padT);
+      ctx.lineTo(padL, h - padB);
+      ctx.lineTo(w - padR, h - padB);
+      ctx.stroke();
+
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '11px sans-serif';
+
+      let xMin, xMax, yMin, yMax, xLabel, yLabel;
+
+      const isCelsius = (lab === 'charles' && mode === 'v-t') || (lab === 'pressure' && mode === 'p-t');
+
+      if (lab === 'boyle') {
+        if (mode === 'p-v') {
+          xMin = 10; xMax = 65; yMin = 40; yMax = 220;
+          xLabel = "Volume V (cm³)";
+          yLabel = "Pressure P (kPa)";
+        } else {
+          xMin = 0; xMax = 0.07; yMin = 0; yMax = 220;
+          xLabel = "1 / Volume (cm⁻³)";
+          yLabel = "Pressure P (kPa)";
+        }
+      } else if (lab === 'charles') {
+        if (mode === 'v-t') {
+          // Celsius with extrapolation: x extends to -300°C, y-axis at 0°C
+          xMin = -300; xMax = 120; yMin = 0; yMax = 45;
+          xLabel = "Temperature θ (°C)";
+          yLabel = "Volume V (cm³)";
+        } else {
+          xMin = 0; xMax = 400; yMin = 0; yMax = 45;
+          xLabel = "Absolute Temperature T (K)";
+          yLabel = "Volume V (cm³)";
+        }
+      } else {
+        if (mode === 'p-t') {
+          // Celsius with extrapolation: x extends to -300°C, y-axis at 0°C
+          xMin = -300; xMax = 120; yMin = 0; yMax = 150;
+          xLabel = "Temperature θ (°C)";
+          yLabel = "Pressure P (kPa)";
+        } else {
+          xMin = 0; xMax = 400; yMin = 0; yMax = 150;
+          xLabel = "Absolute Temperature T (K)";
+          yLabel = "Pressure P (kPa)";
+        }
+      }
+
+      // Coordinate mapping helpers
+      const toX = (val) => padL + ((val - xMin) / (xMax - xMin)) * plotW;
+      const toY = (val) => (h - padB) - ((val - yMin) / (yMax - yMin)) * plotH;
+
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '11px sans-serif';
+
+      if (isCelsius) {
+        const xZero = toX(0);
+
+        // Horizontal axis along bottom (y = 0)
+        ctx.strokeStyle = '#64748b';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(padL, h - padB);
+        ctx.lineTo(w - padR, h - padB);
+        ctx.stroke();
+
+        // Vertical y-axis positioned directly at θ = 0°C (NOT at -300°C)
+        ctx.strokeStyle = '#94a3b8';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(xZero, h - padB);
+        ctx.lineTo(xZero, padT);
+        ctx.stroke();
+
+        // Arrow head on y-axis at top
+        ctx.beginPath();
+        ctx.moveTo(xZero - 4, padT + 6);
+        ctx.lineTo(xZero, padT);
+        ctx.lineTo(xZero + 4, padT + 6);
+        ctx.stroke();
+
+        // Title at the top of the vertical y-axis
+        ctx.textAlign = 'center';
+        ctx.fillStyle = lab === 'charles' ? '#34d399' : '#fbbf24';
+        ctx.font = 'bold 11px sans-serif';
+        ctx.fillText(yLabel, xZero, padT - 6);
+
+        // Horizontal axis label
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '11px sans-serif';
+        ctx.fillText("Temperature θ (°C)", padL + plotW / 2, h - 8);
+
+        // Ticks along the horizontal temperature axis
+        const xTicks = [-273.15, -200, -100, 0, 50, 100];
+        xTicks.forEach(txVal => {
+          const tx = toX(txVal);
+          ctx.strokeStyle = txVal === -273.15 ? '#f43f5e' : '#475569';
+          ctx.lineWidth = txVal === -273.15 ? 2 : 1;
+          ctx.beginPath();
+          ctx.moveTo(tx, h - padB);
+          ctx.lineTo(tx, h - padB + 5);
+          ctx.stroke();
+
+          ctx.textAlign = 'center';
+          if (txVal === -273.15) {
+            ctx.fillStyle = '#f43f5e';
+            ctx.font = 'bold 10px sans-serif';
+            ctx.fillText("-273°C", tx, h - padB + 16);
+            ctx.font = '9px sans-serif';
+            ctx.fillText("(Abs 0)", tx, h - padB + 26);
+            ctx.font = '11px sans-serif';
+          } else if (txVal === 0) {
+            ctx.fillStyle = '#e2e8f0';
+            ctx.font = 'bold 11px sans-serif';
+            ctx.fillText("0°C", tx, h - padB + 16);
+            ctx.font = '11px sans-serif';
+          } else {
+            ctx.fillStyle = '#94a3b8';
+            ctx.fillText(txVal.toString(), tx, h - padB + 16);
+          }
+        });
+
+        // Ticks & values on vertical axis (at xZero)
+        ctx.textAlign = 'left';
+        ctx.fillStyle = '#94a3b8';
+        ctx.fillText(yMax.toFixed(0), xZero + 6, padT + 12);
+        ctx.fillText("0", xZero + 6, h - padB - 4);
+
+      } else {
+        // Standard layout for Boyle's law and Kelvin modes
+        ctx.strokeStyle = '#64748b';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(padL, padT);
+        ctx.lineTo(padL, h - padB);
+        ctx.lineTo(w - padR, h - padB);
+        ctx.stroke();
+
+        ctx.textAlign = 'center';
+        ctx.fillText(xLabel, padL + plotW / 2, h - 8);
+
+        ctx.save();
+        ctx.translate(14, padT + plotH / 2);
+        ctx.rotate(-Math.PI / 2);
+        ctx.fillText(yLabel, 0, 0);
+        ctx.restore();
+
+        ctx.textAlign = 'right';
+        ctx.fillText(yMin.toFixed(0), padL - 8, h - padB + 4);
+        ctx.fillText(yMax.toFixed(0), padL - 8, padT + 8);
+        ctx.textAlign = 'center';
+        ctx.fillText(xMin.toFixed(0), padL, h - padB + 16);
+        ctx.fillText(xMax.toFixed(0), w - padR, h - padB + 16);
+      }
+
+      // Theoretical Curves & Lines (shown only when showFitLine is enabled)
+      if (APP_STATE.showFitLine) {
+        if (lab === 'boyle') {
+          ctx.strokeStyle = '#38bdf8';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          if (mode === 'p-v') {
+            // Hyperbola P = 3039 / V
+            for (let v = 12; v <= 65; v += 1) {
+              const p = 3039 / v;
+              const px = toX(v);
+              const py = toY(p);
+              if (v === 12) ctx.moveTo(px, py);
+              else ctx.lineTo(px, py);
+            }
+          } else {
+            // Straight line P = k * (1/V) passing origin
+            ctx.moveTo(toX(0), toY(0));
+            ctx.lineTo(toX(0.065), toY(0.065 * 3039));
+          }
+          ctx.stroke();
+        } else if (lab === 'charles') {
+          const slope = 30 / 293.15;
+          if (mode === 'v-t') {
+            // Negative temperature: DOTTED line of extrapolation down to -273.15°C
+            ctx.setLineDash([4, 4]);
+            ctx.strokeStyle = '#34d399';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(toX(-273.15), toY(0));
+            ctx.lineTo(toX(0), toY(slope * 273.15));
+            ctx.stroke();
+
+            // Above 0°C: SOLID line going upward starting at the y-axis
+            ctx.setLineDash([]);
+            ctx.strokeStyle = '#10b981';
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.moveTo(toX(0), toY(slope * 273.15));
+            ctx.lineTo(toX(100), toY(slope * (100 + 273.15)));
+            ctx.stroke();
+
+            // Intercept marker V0 on the y-axis (0°C)
+            const v0 = slope * 273.15;
+            ctx.fillStyle = '#10b981';
+            ctx.beginPath();
+            ctx.arc(toX(0), toY(v0), 4, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.textAlign = 'left';
+            ctx.font = 'bold 10px sans-serif';
+            ctx.fillText(`V₀ = ${v0.toFixed(1)} cm³`, toX(0) + 8, toY(v0) + 3);
+            ctx.font = '11px sans-serif';
+          } else {
+            // Kelvin mode: passes directly through origin (0, 0)
+            ctx.setLineDash([]);
+            ctx.strokeStyle = '#10b981';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(toX(0), toY(0));
+            ctx.lineTo(toX(380), toY(slope * 380));
+            ctx.stroke();
+
+            ctx.fillStyle = '#10b981';
+            ctx.textAlign = 'left';
+            ctx.fillText(`Passes through origin (0, 0) : V ∝ T`, toX(20), toY(slope * 120));
+          }
+        } else {
+          const slope = 101.3 / 293.15;
+          if (mode === 'p-t') {
+            // Negative temperature: DOTTED line of extrapolation down to -273.15°C
+            ctx.setLineDash([4, 4]);
+            ctx.strokeStyle = '#fbbf24';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(toX(-273.15), toY(0));
+            ctx.lineTo(toX(0), toY(slope * 273.15));
+            ctx.stroke();
+
+            // Above 0°C: SOLID line going upward starting at the y-axis
+            ctx.setLineDash([]);
+            ctx.strokeStyle = '#f59e0b';
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.moveTo(toX(0), toY(slope * 273.15));
+            ctx.lineTo(toX(100), toY(slope * (100 + 273.15)));
+            ctx.stroke();
+
+            // Intercept marker P0 on the y-axis (0°C)
+            const p0 = slope * 273.15;
+            ctx.fillStyle = '#f59e0b';
+            ctx.beginPath();
+            ctx.arc(toX(0), toY(p0), 4, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.textAlign = 'left';
+            ctx.font = 'bold 10px sans-serif';
+            ctx.fillText(`P₀ = ${p0.toFixed(1)} kPa`, toX(0) + 8, toY(p0) + 3);
+            ctx.font = '11px sans-serif';
+          } else {
+            // Kelvin mode: passes directly through origin (0, 0)
+            ctx.setLineDash([]);
+            ctx.strokeStyle = '#f59e0b';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(toX(0), toY(0));
+            ctx.lineTo(toX(380), toY(slope * 380));
+            ctx.stroke();
+
+            ctx.fillStyle = '#f59e0b';
+            ctx.textAlign = 'left';
+            ctx.fillText(`Passes through origin (0, 0) : P ∝ T`, toX(20), toY(slope * 120));
+          }
+        }
+        ctx.setLineDash([]);
+      }
+
+      // Draw Data points
+      data.forEach(pt => {
+        let xVal, yVal;
+        if (lab === 'boyle') {
+          xVal = mode === 'p-v' ? pt.V : pt.inv_V;
+          yVal = pt.P;
+        } else if (lab === 'charles') {
+          xVal = mode === 'v-t' ? pt.T_C : pt.T_K;
+          yVal = pt.V;
+        } else {
+          xVal = mode === 'p-t' ? pt.T_C : pt.T_K;
+          yVal = pt.P;
+        }
+
+        const cx = toX(xVal);
+        const cy = toY(yVal);
+
+        if (cx >= padL && cx <= w - padR && cy >= padT && cy <= h - padB) {
+          ctx.fillStyle = '#f43f5e';
+          ctx.beginPath();
+          ctx.arc(cx, cy, 4.5, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+        }
+      });
+    }
+
+    // --- Apparatus Simulation Canvas Rendering ---
+    function startSimLoop() {
+      if (animFrameId) cancelAnimationFrame(animFrameId);
+      function loop() {
+        drawSimulationRig();
+        animFrameId = requestAnimationFrame(loop);
+      }
+      loop();
+    }
+
+    function drawSimulationRig() {
+      const canvas = document.getElementById('simCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width;
+      const h = canvas.height;
+      const lab = APP_STATE.currentLab;
+
+      ctx.clearRect(0, 0, w, h);
+
+      // Lab Background Table
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(0, 0, w, h);
+
+      // Bench surface
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(0, h - 35, w, 35);
+      ctx.fillStyle = '#334155';
+      ctx.fillRect(0, h - 35, w, 3);
+
+      if (lab === 'boyle') {
+        drawBoyleSyringe(ctx, w, h);
+      } else if (lab === 'charles') {
+        drawCharlesCapillary(ctx, w, h);
+      } else if (lab === 'pressure') {
+        drawPressureFlask(ctx, w, h);
+      }
+    }
+
+    // 1. Boyle's Law: Syringe + Bourdon tube connection
+    function drawBoyleSyringe(ctx, w, h) {
+      const vol = APP_STATE.simValues.boyle.volume; // 15 to 60
+      const barrelX = 80;
+      const barrelY = 90;
+      const barrelW = 260;
+      const barrelH = 110;
+
+      // Map volume (15 to 60) to plunger position
+      const plungerX = barrelX + 40 + ((vol - 15) / 45) * (barrelW - 60);
+
+      // Gas particles in chamber (from barrelX to plungerX)
+      const chamberW = plungerX - barrelX;
+      ctx.fillStyle = 'rgba(56, 189, 248, 0.12)';
+      ctx.fillRect(barrelX + 4, barrelY + 4, chamberW - 4, barrelH - 8);
+
+      // Particle physics & collision (rendered only when showParticles is enabled)
+      if (APP_STATE.showParticles) {
+        const speedMult = 2.0;
+        particlesBoyle.forEach(p => {
+          p.x += p.vx * speedMult;
+          p.y += p.vy * speedMult;
+
+          // Bounce horizontally
+          if (p.x < barrelX + 8) { p.x = barrelX + 8; p.vx *= -1; }
+          if (p.x > plungerX - 8) { p.x = plungerX - 8; p.vx *= -1; }
+          // Bounce vertically
+          if (p.y < barrelY + 8) { p.y = barrelY + 8; p.vy *= -1; }
+          if (p.y > barrelY + barrelH - 8) { p.y = barrelY + barrelH - 8; p.vy *= -1; }
+
+          ctx.fillStyle = '#38bdf8';
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fill();
+        });
+      }
+
+      // Syringe Glass Barrel
+      ctx.strokeStyle = '#94a3b8';
+      ctx.lineWidth = 3;
+      ctx.strokeRect(barrelX, barrelY, barrelW, barrelH);
+
+      // Volume Graduations
+      ctx.strokeStyle = '#64748b';
+      ctx.lineWidth = 1.5;
+      for (let v = 15; v <= 60; v += 5) {
+        const gx = barrelX + 40 + ((v - 15) / 45) * (barrelW - 60);
+        ctx.beginPath();
+        ctx.moveTo(gx, barrelY);
+        ctx.lineTo(gx, barrelY + 18);
+        ctx.moveTo(gx, barrelY + barrelH - 18);
+        ctx.lineTo(gx, barrelY + barrelH);
+        ctx.stroke();
+      }
+
+      // Rubber Plunger Head
+      ctx.fillStyle = '#0284c7';
+      ctx.fillRect(plungerX, barrelY + 4, 16, barrelH - 8);
+      // Plunger Rod
+      ctx.fillStyle = '#475569';
+      ctx.fillRect(plungerX + 16, barrelY + barrelH / 2 - 12, barrelW - (plungerX - barrelX), 24);
+      // Plunger Handle
+      ctx.fillStyle = '#64748b';
+      ctx.fillRect(barrelX + barrelW + 35, barrelY + 15, 15, barrelH - 30);
+
+      // Connecting tube from syringe nozzle to gauge
+      ctx.strokeStyle = '#0284c7';
+      ctx.lineWidth = 6;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(barrelX, barrelY + barrelH / 2);
+      ctx.lineTo(30, barrelY + barrelH / 2);
+      ctx.lineTo(30, 45);
+      ctx.lineTo(440, 45);
+      ctx.stroke();
+
+      // Labeling
+      ctx.fillStyle = '#cbd5e1';
+      ctx.font = '12px sans-serif';
+      ctx.fillText("Sealed Gas Syringe", barrelX + 60, barrelY - 12);
+      ctx.fillText("High-Pressure Connecting Tubing", 120, 35);
+    }
+
+    // 2. Charles's Law: Capillary tube submerged in beaker
+    function drawCharlesCapillary(ctx, w, h) {
+      const temp = APP_STATE.simValues.charles.tempC;
+      const beakerX = 140;
+      const beakerY = 70;
+      const beakerW = 200;
+      const beakerH = 190;
+
+      // Water Bath
+      const waterGrad = ctx.createLinearGradient(0, beakerY + 40, 0, beakerY + beakerH);
+      waterGrad.addColorStop(0, temp > 50 ? 'rgba(239, 68, 68, 0.25)' : 'rgba(56, 189, 248, 0.25)');
+      waterGrad.addColorStop(1, 'rgba(30, 64, 175, 0.4)');
+      ctx.fillStyle = waterGrad;
+      ctx.fillRect(beakerX + 4, beakerY + 40, beakerW - 8, beakerH - 44);
+
+      // Beaker outline
+      ctx.strokeStyle = '#94a3b8';
+      ctx.lineWidth = 3;
+      ctx.strokeRect(beakerX, beakerY, beakerW, beakerH);
+
+      // Capillary Tube
+      const capX = beakerX + 80;
+      const capY = 90;
+      const capW = 22;
+      const capH = 155;
+
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(capX, capY, capW, capH);
+      ctx.strokeStyle = '#e2e8f0';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(capX, capY, capW, capH);
+
+      // Gas Column Length inside capillary
+      // Base at bottom, expansion goes upward with temperature
+      const gasLen = 45 + (temp / 100) * 65;
+      const gasTopY = (capY + capH) - gasLen;
+
+      // Trapped Gas Background
+      ctx.fillStyle = temp > 50 ? 'rgba(251, 146, 60, 0.2)' : 'rgba(56, 189, 248, 0.25)';
+      ctx.fillRect(capX + 2, gasTopY, capW - 4, gasLen);
+
+      // Kinetic Motion of Gas Particles inside Trapped Air Column (when enabled)
+      if (APP_STATE.showParticles) {
+        const speedCharles = 0.9 + (temp / 100) * 2.8;
+        const minX = capX + 4;
+        const maxX = capX + capW - 4;
+        const minY = gasTopY + 3;
+        const maxY = capY + capH - 4;
+
+        particlesCharles.forEach(p => {
+          p.x += p.vx * speedCharles;
+          p.y += p.vy * speedCharles;
+
+          if (p.x < minX) { p.x = minX; p.vx = Math.abs(p.vx); }
+          if (p.x > maxX) { p.x = maxX; p.vx = -Math.abs(p.vx); }
+          if (p.y < minY) { p.y = minY; p.vy = Math.abs(p.vy); }
+          if (p.y > maxY) { p.y = maxY; p.vy = -Math.abs(p.vy); }
+
+          ctx.fillStyle = temp > 50 ? '#fb923c' : '#38bdf8';
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fill();
+        });
+      }
+
+      // Sulfuric Acid / Mercury Index Bead
+      ctx.fillStyle = '#ef4444';
+      ctx.fillRect(capX + 1, gasTopY - 12, capW - 2, 12);
+      ctx.fillStyle = '#fca5a5';
+      ctx.fillRect(capX + 3, gasTopY - 10, 3, 8);
+
+      // Thermometer
+      const thX = beakerX + 140;
+      ctx.fillStyle = '#334155';
+      ctx.fillRect(thX, 50, 10, 190);
+      ctx.fillStyle = '#ef4444';
+      const mercuryH = 20 + (temp / 100) * 120;
+      ctx.fillRect(thX + 2, 240 - mercuryH, 6, mercuryH);
+      // bulb
+      ctx.beginPath();
+      ctx.arc(thX + 5, 245, 10, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Electric heater coil below beaker
+      ctx.strokeStyle = temp > 40 ? '#f97316' : '#64748b';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(beakerX + 20, beakerY + beakerH + 6);
+      ctx.lineTo(beakerX + beakerW - 20, beakerY + beakerH + 6);
+      ctx.stroke();
+
+      // Labels
+      ctx.fillStyle = '#cbd5e1';
+      ctx.font = '11px sans-serif';
+      ctx.fillText("Index Bead", capX - 65, gasTopY - 4);
+      ctx.fillText("Trapped Air (V ∝ T)", capX - 110, gasTopY + gasLen / 2);
+      ctx.fillText("Thermometer", thX - 35, 42);
+    }
+
+    // 3. Pressure Law: Rigid flask in heated water bath
+    function drawPressureFlask(ctx, w, h) {
+      const temp = APP_STATE.simValues.pressure.tempC;
+      const beakerX = 110;
+      const beakerY = 90;
+      const beakerW = 240;
+      const beakerH = 170;
+
+      // Water Bath
+      ctx.fillStyle = temp > 40 ? 'rgba(249, 115, 22, 0.25)' : 'rgba(14, 165, 233, 0.2)';
+      ctx.fillRect(beakerX + 4, beakerY + 30, beakerW - 8, beakerH - 34);
+
+      // Beaker outline
+      ctx.strokeStyle = '#94a3b8';
+      ctx.lineWidth = 3;
+      ctx.strokeRect(beakerX, beakerY, beakerW, beakerH);
+
+      // Round-Bottom Flask
+      const flaskCenterX = beakerX + beakerW / 2;
+      const flaskCenterY = beakerY + 105;
+      const flaskRadius = 55;
+
+      // Flask bulb background
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+      ctx.beginPath();
+      ctx.arc(flaskCenterX, flaskCenterY, flaskRadius, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+
+      // Kinetic Motion of Gas Particles inside the Rigid Flask Bulb (when enabled)
+      if (APP_STATE.showParticles) {
+        const speedPressure = 1.0 + (temp / 100) * 3.5;
+        const bounceRadius = flaskRadius - 7;
+
+        particlesPressure.forEach(p => {
+          p.x += p.vx * speedPressure;
+          p.y += p.vy * speedPressure;
+
+          const dx = p.x - flaskCenterX;
+          const dy = p.y - flaskCenterY;
+          const dist = Math.hypot(dx, dy);
+
+          if (dist > bounceRadius) {
+            const nx = dx / dist;
+            const ny = dy / dist;
+            const dot = p.vx * nx + p.vy * ny;
+            p.vx -= 2 * dot * nx;
+            p.vy -= 2 * dot * ny;
+            p.x = flaskCenterX + nx * (bounceRadius - 1);
+            p.y = flaskCenterY + ny * (bounceRadius - 1);
+          }
+
+          ctx.fillStyle = temp > 50 ? '#fb923c' : '#38bdf8';
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fill();
+        });
+      }
+
+      // Flask Neck
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(flaskCenterX - 14, beakerY - 10, 28, 65);
+      ctx.strokeStyle = '#38bdf8';
+      ctx.strokeRect(flaskCenterX - 14, beakerY - 10, 28, 65);
+
+      // Rubber Stopper
+      ctx.fillStyle = '#475569';
+      ctx.fillRect(flaskCenterX - 12, beakerY - 16, 24, 12);
+
+      // Tubing to Gauge
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(flaskCenterX, beakerY - 16);
+      ctx.lineTo(flaskCenterX, 35);
+      ctx.lineTo(440, 35);
+      ctx.stroke();
+
+      // Stirrer
+      ctx.strokeStyle = '#94a3b8';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(beakerX + 30, 45);
+      ctx.lineTo(beakerX + 30, beakerY + beakerH - 20);
+      ctx.lineTo(beakerX + 50, beakerY + beakerH - 20);
+      ctx.stroke();
+
+      // Labels
+      ctx.fillStyle = '#cbd5e1';
+      ctx.font = '11px sans-serif';
+      ctx.fillText("Rigid Round-Bottom Flask (Fixed Volume)", flaskCenterX - 95, beakerY + beakerH - 6);
+      ctx.fillText("Glass Stirrer", beakerX + 15, 38);
+    }
+
+    // --- DSE Multiple Choice Questions Data ---
+    const DSE_QUESTIONS = [
+      {
+        id: 'q1',
+        lab: "Boyle's Law",
+        tag: "Graph & Proportionality",
+        question: "In an experiment verifying Boyle's law, a student plots a graph of pressure $P$ against $\\frac{1}{V}$ for a fixed mass of gas at constant temperature $T_1$, obtaining a straight line passing through the origin.<br><br>If the experiment is repeated with the same sample of gas at a higher constant temperature $T_2$ ($T_2 > T_1$), which of the following correctly describes the new graph?",
+        options: [
+          { key: 'A', text: "A straight line passing through the origin with a larger slope." },
+          { key: 'B', text: "A straight line passing through the origin with a smaller slope." },
+          { key: 'C', text: "A horizontal straight line parallel to the $\\frac{1}{V}$ axis." },
+          { key: 'D', text: "A curve bending downwards towards the $\\frac{1}{V}$ axis." }
+        ],
+        answer: 'A',
+        explanation: "From the ideal gas relation $PV = nRT$, rearranging gives $P = (nRT) \\times \\frac{1}{V}$. The slope of the $P$ against $\\frac{1}{V}$ graph is $nRT$. Since the amount of gas is unchanged and $T_2 > T_1$, the product $nRT_2 > nRT_1$. Hence, the new graph is also a straight line passing through the origin, but with a larger (steeper) slope."
+      },
+      {
+        id: 'q2',
+        lab: "Boyle's Law",
+        tag: "Experimental Precaution",
+        question: "In an experiment verifying Boyle's law, a student pushes the piston of the syringe very rapidly to decrease the volume. The measured pressure is found to be noticeably higher than the value predicted by $P_1 V_1 = P_2 V_2$. What is the main cause of this discrepancy?",
+        options: [
+          { key: 'A', text: "Work done on the gas increases its internal energy and temperature during rapid compression." },
+          { key: 'B', text: "Some gas molecules escaped from the nozzle during compression." },
+          { key: 'C', text: "Atmospheric pressure increased during the rapid compression." },
+          { key: 'D', text: "The cross-sectional area of the syringe barrel decreased under high force." }
+        ],
+        answer: 'A',
+        explanation: "Rapid compression is nearly adiabatic: insufficient time is allowed for heat to dissipate to the surroundings. The work done on the gas increases its internal energy and temperature, leading to a higher pressure than expected under isothermal conditions."
+      },
+      {
+        id: 'q3',
+        lab: "Pressure Law",
+        tag: "Calculation & Kelvin Scale",
+        question: "A rigid sealed container holds a fixed mass of gas at an initial pressure of $P_1$ at temperature $27^\\circ\\text{C}$. The container is heated to $127^\\circ\\text{C}$ without any change in volume. What is the new pressure $P_2$ of the gas?",
+        options: [
+          { key: 'A', text: "$\\frac{127}{27} P_1 \\approx 4.70\\,P_1$" },
+          { key: 'B', text: "$\\frac{4}{3} P_1 \\approx 1.33\\,P_1$" },
+          { key: 'C', text: "$2.00\\,P_1$" },
+          { key: 'D', text: "$\\frac{3}{4} P_1 = 0.75\\,P_1$" }
+        ],
+        answer: 'B',
+        explanation: "Gas law calculations must use absolute temperature in Kelvin: T₁ = 27 + 273 = 300 K, and T₂ = 127 + 273 = 400 K. By the Pressure Law: P₂ = P₁ × (T₂ / T₁) = P₁ × (400 / 300) = (4/3) P₁ ≈ 1.33 P₁."
+      },
+      {
+        id: 'q4',
+        lab: "Pressure Law",
+        tag: "Experimental Error & Dead Space",
+        question: "In the Pressure Law experiment, a sealed flask inside a water bath is connected to a Bourdon pressure gauge via a connecting tube. The air inside the connecting tube remains outside the water bath at room temperature.<br><br>How does this 'dead space' affect the pressure readings as the water bath is heated from $0^\\circ\\text{C}$ to $100^\\circ\\text{C}$?",
+        options: [
+          { key: 'A', text: "The measured pressure is higher than the theoretical value because the tube expands." },
+          { key: 'B', text: "The measured pressure is lower than the theoretical value because the air in the connecting tube is cooler than the water bath." },
+          { key: 'C', text: "The measured pressure is completely unaffected because gas pressure is transmitted equally throughout." },
+          { key: 'D', text: "The measured pressure drops to zero when the water bath reaches $100^\\circ\\text{C}$." }
+        ],
+        answer: 'B',
+        explanation: "Because the air inside the connecting tube and Bourdon gauge is outside the heated water bath, its temperature remains near room temperature. As a result, the average temperature of the total trapped air is lower than the water bath temperature measured by the thermometer, leading to a measured pressure lower than the theoretical value."
+      },
+      {
+        id: 'q5',
+        lab: "Charles's Law",
+        tag: "Graph & Absolute Zero",
+        question: "In an experiment investigating Charles's law, a dry air column trapped by a mercury bead in a capillary tube is heated in a water bath. A graph of the length of the air column $L$ against Celsius temperature $\\theta$ is plotted. Which of the following statements is/are correct?<br><br>(1) $L$ is directly proportional to $\\theta$.<br>(2) When extrapolated, the graph intercepts the $\\theta$-axis at approximately $-273^\\circ\\text{C}$.<br>(3) The pressure of the trapped air remains constant during the experiment.",
+        options: [
+          { key: 'A', text: "(1) only" },
+          { key: 'B', text: "(1) and (2) only" },
+          { key: 'C', text: "(2) and (3) only" },
+          { key: 'D', text: "(1), (2) and (3)" }
+        ],
+        answer: 'C',
+        explanation: "(1) is incorrect because volume/length is directly proportional to absolute temperature T (in K), not Celsius temperature θ. (2) is correct because V approaches zero at absolute zero (-273.15°C). (3) is correct because the index bead is free to slide under constant external atmospheric pressure."
+      },
+      {
+        id: 'q6',
+        lab: "Charles's Law",
+        tag: "Experimental Technique",
+        question: "In the Charles's law experiment with a capillary tube, why must the entire trapped air column be completely submerged below the surface of the stirred water bath?",
+        options: [
+          { key: 'A', text: "To prevent the water in the beaker from evaporating too quickly." },
+          { key: 'B', text: "To ensure that all parts of the trapped air column are in thermal equilibrium with the recorded water temperature." },
+          { key: 'C', text: "To exert extra hydrostatic pressure on the capillary tube." },
+          { key: 'D', text: "To prevent the mercury index from falling out due to gravity." }
+        ],
+        answer: 'B',
+        explanation: "If any part of the trapped air column is above the water level, it will be at room temperature rather than the water bath temperature, creating an uneven temperature gradient and systematic measurement error."
+      }
+    ];
+
+    let userQuizAnswers = {};
+
+    function renderQuizQuestions() {
+      const container = document.getElementById('quiz-questions-list');
+      if (!container) return;
+
+      container.innerHTML = DSE_QUESTIONS.map((q, idx) => `
+        <div id="card-${q.id}" class="bg-slate-900/80 border border-slate-700/80 rounded-xl p-4 space-y-3 transition">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+            <span class="text-xs font-bold text-sky-400 uppercase tracking-wider flex items-center gap-1.5">
+              <span>Question ${idx + 1}</span>
+              <span class="text-slate-500">•</span>
+              <span class="text-slate-300 font-semibold">${q.lab}</span>
+            </span>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-amber-300 border border-slate-700">${q.tag}</span>
+          </div>
+          
+          <div class="text-xs sm:text-sm text-slate-200 leading-relaxed">
+            ${q.question}
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+            ${q.options.map(opt => `
+              <label class="flex items-start gap-2.5 p-2 rounded-lg bg-slate-950/60 border border-slate-800 hover:border-blue-500/50 cursor-pointer select-none text-xs transition">
+                <input type="radio" name="opt-${q.id}" value="${opt.key}" onchange="selectQuizOption('${q.id}', '${opt.key}')" class="mt-0.5 accent-blue-500">
+                <span class="font-bold text-slate-400 font-mono">${opt.key}.</span>
+                <span class="text-slate-200">${opt.text}</span>
+              </label>
+            `).join('')}
+          </div>
+
+          <div id="expl-${q.id}" class="hidden mt-3 p-3 rounded-lg text-xs border">
+            <!-- Detailed explanation appears after grading -->
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function selectQuizOption(qid, optKey) {
+      userQuizAnswers[qid] = optKey;
+    }
+
+    function gradeQuiz() {
+      let score = 0;
+      const total = DSE_QUESTIONS.length;
+
+      DSE_QUESTIONS.forEach(q => {
+        const userChoice = userQuizAnswers[q.id];
+        const card = document.getElementById(`card-${q.id}`);
+        const expl = document.getElementById(`expl-${q.id}`);
+
+        expl.classList.remove('hidden');
+
+        if (userChoice === q.answer) {
+          score++;
+          card.classList.remove('border-rose-500/50');
+          card.classList.add('border-emerald-500/60');
+          expl.className = "mt-3 p-3 rounded-lg text-xs bg-emerald-950/40 border border-emerald-500/50 text-emerald-200";
+          expl.innerHTML = `<span class="font-bold text-emerald-400">✓ Correct (Option ${q.answer}):</span> ${q.explanation}`;
+        } else {
+          card.classList.remove('border-emerald-500/60');
+          card.classList.add('border-rose-500/50');
+          expl.className = "mt-3 p-3 rounded-lg text-xs bg-rose-950/40 border border-rose-500/50 text-rose-200";
+          expl.innerHTML = `<span class="font-bold text-rose-400">✗ Incorrect (Your choice: ${userChoice || 'None'}, Correct: Option ${q.answer}):</span> ${q.explanation}`;
+        }
+      });
+
+      const scoreBadge = document.getElementById('quiz-score-badge');
+      const scoreVal = document.getElementById('score-val');
+      scoreBadge.classList.remove('hidden');
+      scoreVal.textContent = score;
+
+      const msg = document.getElementById('submit-status-msg');
+      const pct = Math.round((score / total) * 100);
+      msg.className = score >= 4 ? "text-emerald-400 font-semibold" : "text-amber-400 font-semibold";
+      msg.textContent = `Quiz Graded: ${score} / ${total} (${pct}%). Detailed explanations displayed above.`;
+
+      renderMath();
+    }
+
+    // --- Lab Report & Teacher Submission ---
+    function updateCompletionPills() {
+      renderQuizQuestions();
+    }
+
+    async function submitToTeacher() {
+      const name = document.getElementById('student-name').value.trim();
+      const studentClass = document.getElementById('student-class').value.trim();
+      const msg = document.getElementById('submit-status-msg');
+      const submitBtn = document.getElementById('btn-submit');
+
+      if (!name || !studentClass) {
+        msg.className = "text-rose-400 font-medium";
+        msg.textContent = "Please enter your Name and Class before submitting.";
+        return;
+      }
+
+      // Automatically grade before submitting
+      gradeQuiz();
+
+      let score = 0;
+      DSE_QUESTIONS.forEach(q => {
+        if (userQuizAnswers[q.id] === q.answer) score++;
+      });
+
+      msg.className = "text-blue-400";
+      msg.textContent = "Submitting quiz responses to your teacher...";
+      submitBtn.disabled = true;
+
+      // Build structured classroom responses
+      const payload = {
+        responses: [
+          {
+            question: "Student Profile",
+            answer: `Name: ${name}, Class: ${studentClass}`,
+            type: "short-answer"
+          },
+          {
+            question: "DSE Quiz Total Score",
+            answer: `${score} / 6 (${Math.round((score / 6) * 100)}%)`,
+            type: "short-answer"
+          },
+          ...DSE_QUESTIONS.map((q, idx) => ({
+            question: `Q${idx + 1} (${q.lab} - ${q.tag})`,
+            answer: `Selected: ${userQuizAnswers[q.id] || 'Unanswered'} | Correct: ${q.answer} | Status: ${userQuizAnswers[q.id] === q.answer ? 'CORRECT' : 'INCORRECT'}`,
+            type: "multiple-choice"
+          })),
+          {
+            question: "Laboratory Experimental Readings Count",
+            answer: `Boyle: ${APP_STATE.dataPoints.boyle.length} pts, Charles: ${APP_STATE.dataPoints.charles.length} pts, Pressure: ${APP_STATE.dataPoints.pressure.length} pts`,
+            type: "short-answer"
+          }
+        ]
+      };
+
+      try {
+        if (typeof window.sayoSubmit === 'function') {
+          const res = await window.sayoSubmit(payload);
+          if (res && res.ok === true) {
+            msg.className = "text-emerald-400 font-semibold";
+            msg.textContent = `✓ Quiz results (${score}/6) successfully submitted to your teacher!`;
+            submitBtn.textContent = "Submitted";
+            submitBtn.classList.replace('bg-emerald-600', 'bg-slate-700');
+          } else {
+            msg.className = "text-rose-400 font-semibold";
+            msg.textContent = (res && res.message) ? res.message : "Submission could not be completed. Please notify teacher.";
+            submitBtn.disabled = false;
+          }
+        } else {
+          // Local preview fallback
+          msg.className = "text-emerald-400 font-semibold";
+          msg.textContent = `✓ Quiz results graded (${score}/6). Ready for teacher submission.`;
+          submitBtn.disabled = false;
+        }
+      } catch (err) {
+        msg.className = "text-rose-400";
+        msg.textContent = "Submission error: " + err.message;
+        submitBtn.disabled = false;
+      }
+    }
+
+    // --- Math Rendering Helper ---
+    function renderMath() {
+      if (window.renderMathInElement) {
+        renderMathInElement(document.body, {
+          delimiters: [
+            { left: '$$', right: '$$', display: true },
+            { left: '$', right: '$', display: false }
+          ],
+          throwOnError: false
+        });
+      }
+    }
+
+    // --- Initialization ---
+    window.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('student-date').value = new Date().toISOString().split('T')[0];
+      switchLab('boyle');
+      setTimeout(renderMath, 200);
+    });
+  </script>
+</body>
+</html>
